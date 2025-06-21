@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
-use quote::{quote, format_ident};
-use syn::{parse_macro_input, DeriveInput, Data, Fields};
+use quote::{format_ident, quote};
+use syn::{parse_macro_input, Data, DeriveInput, Fields};
 
 pub fn from_lua_table(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -24,8 +24,8 @@ pub fn from_lua_table(input: TokenStream) -> TokenStream {
     });
 
     let gen = quote! {
-        impl<'lua> ::mlua::FromLua<'lua> for #ident {
-            fn from_lua(lua_value: ::mlua::Value<'lua>, lua: &'lua ::mlua::Lua) -> ::mlua::Result<Self> {
+        impl ::mlua::FromLua for #ident {
+            fn from_lua(lua_value: ::mlua::Value, lua: &::mlua::Lua) -> ::mlua::Result<Self> {
                 if let ::mlua::Value::Table(table) = lua_value {
                     Ok(Self {
                         #(#get_fields)*

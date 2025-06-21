@@ -1,9 +1,9 @@
 use proc_macro::TokenStream;
-use quote::{quote, format_ident};
-use syn::{parse_macro_input, DeriveInput, Data, Fields, Type};
-use syn::spanned::Spanned;
-use syn::punctuated::Punctuated;
 use proc_macro2::TokenStream as TokenStream2;
+use quote::{format_ident, quote};
+use syn::punctuated::Punctuated;
+use syn::spanned::Spanned;
+use syn::{parse_macro_input, Data, DeriveInput, Fields, Type};
 
 pub fn to_lua(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -48,7 +48,7 @@ pub fn to_lua(input: TokenStream) -> TokenStream {
 
     let gen = quote! {
         impl ::mlua::UserData for #ident {
-            fn add_fields<'lua, F: ::mlua::prelude::LuaUserDataFields<'lua, Self>>(fields: &mut F) {
+            fn add_fields<F: ::mlua::prelude::LuaUserDataFields<Self>>(fields: &mut F) {
                 #(#add_field_methods)*
             }
         }
@@ -65,10 +65,8 @@ fn is_copy_type(ty: &Type) -> bool {
             let segments = &type_path.path.segments;
             let segment = segments.last().unwrap();
             match segment.ident.to_string().as_str() {
-                "u8" | "u16" | "u32" | "u64" | "u128" |
-                "i8" | "i16" | "i32" | "i64" | "i128" |
-                "f32" | "f64" |
-                "bool" | "char" | "usize" | "isize" => true,
+                "u8" | "u16" | "u32" | "u64" | "u128" | "i8" | "i16" | "i32" | "i64" | "i128" | "f32"
+                | "f64" | "bool" | "char" | "usize" | "isize" => true,
                 _ => false,
             }
         }
